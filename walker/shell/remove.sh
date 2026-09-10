@@ -8,7 +8,7 @@ pkg_names=$(dpkg-query -f '${binary:Package}\n' -W | fzf -m)
 
 if [[ -n $pkg_names ]]; then
     ask_for_sudo
-    sudo apt-get remove --purge -y "$pkg_names"
+    echo "$pkg_names" | xargs sudo apt-get remove --purge -y
     sudo apt-get autoremove -y
 fi
 

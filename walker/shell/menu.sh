@@ -53,7 +53,7 @@ show_main() {
     Style) show_style ;;
     System) show_system ;;
     Power) show_power ;;
-    Install) install ;;
+    Install) show_install ;;
     Remove) remove ;;
     Keybind) keybind ;;
     esac
@@ -107,12 +107,25 @@ show_power() {
     esac
 }
 
+show_install() {
+    case $(menu "Install" \
+        "󰉉  Install all" \
+        "  Install apt" \
+        "󰓜  Install Flatpak" \
+        "$BACK") in
+    "Install all") tui "$SCRIPT_DIR/install.sh" ;;
+    "Install apt") tui "$SCRIPT_DIR/install-apt.sh" ;;
+    "Install Flatpak") tui "$SCRIPT_DIR/install-flatpak.sh" ;;
+    Back) show_main ;;
+    esac
+}
+
 appmenu() {
     "$SCRIPT_DIR/appmenu.sh"
 }
 
 install() {
-    tui "$SCRIPT_DIR/install.sh"
+    tui "$SCRIPT_DIR/install-apt.sh"
 }
 
 remove() {
