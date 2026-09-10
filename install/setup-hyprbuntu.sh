@@ -31,7 +31,6 @@ NOTIFICATION_DAEMON_PREF=mako
 NVIDIA_SETUP=false
 SWAYOSD_SETUP=true
 THEME_PREF=dark
-THUNAR_SETUP=false
 TUIGREET_SETUP=false
 WALKER_SETUP=true
 WAYBAR_SETUP=true
@@ -564,13 +563,6 @@ mkdir -p "$BUILD_DIR/wayland-protocols"
     sudo ninja -C build install
 )
 
-# From the original hyprbuntu script, write rewrite to use the official github repo install
-# apt_install \
-#     libclang-dev \
-#     libpipewire-0.3-dev
-#
-# cargo install wiremix
-
 install_hyprwm_package hyprwayland-scanner "@stable" \
     libpugixml-dev
 
@@ -687,92 +679,14 @@ fi
 
 if [[ "$HYPRIDLE_SETUP" == "true" ]] && [[ "$HYPRLOCK_SETUP" == "true" ]]; then
     install_hyprwm_package hypridle "@stable"
-    HYPRIDLE_CONF_FILE="$HYPR_CONF_DIR/hypridle.conf"
-    if [ ! -f "$HYPRIDLE_CONF_FILE" ]; then
-        cat <<'EOF' >"$HYPRIDLE_CONF_FILE"
-general {
-  lock_cmd = pidof hyprlock || hyprlock
-  before_sleep_cmd = loginctl lock-session
-  after_sleep_cmd = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
-}
-
-listener {
-  timeout = 300
-  on-timeout = brightnessctl -s set 10
-  on-resume = brightnessctl -r
-}
-
-listener {
-  timeout = 330
-  on-timeout = loginctl lock-session
-}
-
-listener {
-  timeout = 350
-  on-timeout = hyprctl dispatch 'hl.dsp.dpms({action = "off"})'
-  on-resume = hyprctl dispatch 'hl.dsp.dpms({action = "on"})'
-}
-
-EOF
-        if has_battery; then
-            cat <<'EOF' >>"$HYPRIDLE_CONF_FILE"
-listener {
-  timeout = 600
-  on-timeout = grep -q "Discharging" /sys/class/power_supply/BAT*/status && systemctl suspend
-}
-EOF
-        else
-            cat <<'EOF' >>"$HYPRIDLE_CONF_FILE"
-listener {
-  timeout = 600
-  on-timeout = systemctl suspend
-}
-EOF
-        fi
-    fi
     systemctl --user enable hypridle.service
 fi
 
-if [ "none" != "$NOTIFICATION_DAEMON_PREF" ]; then
-    echo "Setting up $NOTIFICATION_DAEMON_PREF notification daemon..."
-    if [ "dunst" = "$NOTIFICATION_DAEMON_PREF" ]; then
-        apt_install dunst
-        DUNST_CONFIG_DIR="$XDG_CONFIG_HOME/dunst"
-        mkdir -p "$DUNST_CONFIG_DIR"
-        DUNST_CONFIG_FILE="$DUNST_CONFIG_DIR/dunstrc"
-
-        if [ ! -f "$DUNST_CONFIG_FILE" ]; then
-            cat <<'EOF' >"$DUNST_CONFIG_FILE"
-[global]
-    icon_theme = "Adwaita"
-    enable_recursive_icon_lookup = true
-EOF
-        fi
-        systemctl --user enable dunst.service
-    fi
-    if [ "mako" = "$NOTIFICATION_DAEMON_PREF" ]; then
-        apt_install mako-notifier
-        MAKO_CONFIG_DIR="$XDG_CONFIG_HOME/mako"
-        mkdir -p "$MAKO_CONFIG_DIR"
-        MAKO_CONFIG_FILE="$MAKO_CONFIG_DIR/config"
-
-        if [ ! -f "$MAKO_CONFIG_FILE" ]; then
-            cat <<'EOF' >"$MAKO_CONFIG_FILE"
-# Do Not Disturb mode
-[mode=dnd]
-invisible=1
-
-# Allow critical notifications to bypass Do Not Disturb
-[mode=dnd urgency=critical]
-invisible=0
-EOF
-        fi
-        systemctl --user enable mako.service
-    fi
-    if [ "swaync" = "$NOTIFICATION_DAEMON_PREF" ]; then
-        apt_install sway-notification-center
-        systemctl --user enable swaync.service
-    fi
+if [ "mako" = "$NOTIFICATION_DAEMON_PREF" ]; then
+    apt_install mako-notifier
+    MAKO_CONFIG_DIR="$XDG_CONFIG_HOME/mako"
+    mkdir -p "$MAKO_CONFIG_DIR"
+    systemctl --user enable mako.service
 fi
 
 if [[ $HYPRSHOT_SETUP == "true" ]]; then
@@ -817,20 +731,6 @@ EOF
     fi
 fi
 
-if [[ $THUNAR_SETUP == "true" ]]; then
-    apt_install \
-        eject \
-        ffmpegthumbnailer \
-        gvfs \
-        gvfs-backends \
-        gvfs-fuse \
-        thunar \
-        thunar-archive-plugin \
-        thunar-volman \
-        tumbler
-
-fi
-
 apt_install \
     alsa-ucm-conf \
     alsa-utils \
@@ -857,136 +757,6 @@ if [[ $WAYBAR_SETUP == "true" ]]; then
 
     WAYBAR_CONFIG_DIR="$XDG_CONFIG_HOME/waybar"
     mkdir -p "$WAYBAR_CONFIG_DIR"
-
-    MODULES_RIGHT='"pulseaudio"'
-    DYNAMIC_CONFIGS=""
-
-    if has_wifi; then
-        MODULES_RIGHT+=', "network#wifi"'
-        DYNAMIC_CONFIGS+=$(
-            cat <<'EOF'
-    "network#wifi": {
-        "interface": "wl*",
-        "format-wifi": "{essid} ({signalStrength}%) ",
-        "tooltip-format": "{ifname} via {gwaddr} ",
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "Disconnected ⚠",
-        "on-click": "pidof wlctl >/dev/null || hyprctl dispatch 'hl.dsp.exec_cmd(\"kitty -e wlctl\", { float = true, center = true, size = \"(monitor_w*0.9) (monitor_h*0.9)\" })'"
-    },
-EOF
-        )
-        DYNAMIC_CONFIGS+=$'\n'
-    fi
-
-    if has_ethernet; then
-        MODULES_RIGHT+=', "network#ethernet"'
-        DYNAMIC_CONFIGS+=$(
-            cat <<'EOF'
-    "network#ethernet": {
-        "interface": "en*",
-        "format-ethernet": "{ipaddr}/{cidr} ",
-        "tooltip-format": "{ifname} via {gwaddr} ",
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "Disconnected ⚠",
-        "on-click": "pidof nmtui >/dev/null || hyprctl dispatch 'hl.dsp.exec_cmd(\"kitty -e nmtui\", { float = true, center = true, size = \"(monitor_w*0.9) (monitor_h*0.9)\" })'"
-    },
-EOF
-        )
-        DYNAMIC_CONFIGS+=$'\n'
-    fi
-
-    if has_bluetooth; then
-        MODULES_RIGHT+=', "bluetooth"'
-        DYNAMIC_CONFIGS+=$(
-            cat <<'EOF'
-    "bluetooth": {
-        "format": " {status}",
-        "format-connected": " {device_alias}",
-        "on-click": "pidof bluetui >/dev/null || hyprctl dispatch 'hl.dsp.exec_cmd(\"kitty -e bluetui\", { float = true, center = true, size = \"(monitor_w*0.9) (monitor_h*0.9)\" })'"
-    },
-EOF
-        )
-        DYNAMIC_CONFIGS+=$'\n'
-    fi
-
-    MODULES_RIGHT+=', "clock"'
-
-    if has_battery; then
-        MODULES_RIGHT+=', "battery"'
-        DYNAMIC_CONFIGS+=$(
-            cat <<'EOF'
-    "battery": {
-        "states": {
-            "warning": 30,
-            "critical": 15
-        },
-        "format": "{capacity}% {icon}",
-        "format-full": "{capacity}% {icon}",
-        "format-charging": "{capacity}% ",
-        "format-plugged": "{capacity}% ",
-        "format-alt": "{time} {icon}",
-        "format-icons": ["", "", "", "", ""]
-    },
-EOF
-        )
-        DYNAMIC_CONFIGS+=$'\n'
-    fi
-
-    MODULES_RIGHT+=', "custom/power"'
-
-    if [ ! -f "$WAYBAR_CONFIG_DIR/config.jsonc" ]; then
-        cat <<EOF >"$WAYBAR_CONFIG_DIR/config.jsonc"
-{
-    "layer": "top",
-    "position": "top",
-    "height": 30,
-    "spacing": 4,
-    "modules-left": ["hyprland/workspaces", "hyprland/submap"],
-    "modules-center": ["hyprland/window"],
-    "modules-right": [$MODULES_RIGHT],
-    "hyprland/workspaces": {
-        "format": "{name}",
-        "disable-scroll": true,
-        "all-outputs": true
-    },
-    "hyprland/window": {
-        "max-length": 50
-    },
-    "pulseaudio": {
-        "format": "{volume}% {icon} {format_source}",
-        "format-bluetooth": "{volume}% {icon} {format_source}",
-        "format-bluetooth-muted": " {icon} {format_source}",
-        "format-muted": " {format_source}",
-        "format-source": "{volume}% ",
-        "format-source-muted": "",
-        "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
-        },
-        "on-click": "pidof wiremix >/dev/null || hyprctl dispatch 'hl.dsp.exec_cmd(\"kitty -e wiremix\", { float = true, center = true, size = \"(monitor_w*0.9) (monitor_h*0.9)\" })'"
-    },
-    "clock": {
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "{:%Y-%m-%d}"
-    },
-$DYNAMIC_CONFIGS
-    "custom/power": {
-        "format": " ",
-        "tooltip": false,
-        "on-click": "wlogout"
-    }
-}
-EOF
-    fi
-
-    if [ ! -f "$WAYBAR_CONFIG_DIR/style.css" ]; then
-        curl -o "$WAYBAR_CONFIG_DIR/style.css" https://raw.githubusercontent.com/Alexays/Waybar/refs/heads/master/resources/style.css
-    fi
 fi
 
 # Point ~/.config at this repo's configs - any existing real dirs (including the
@@ -995,28 +765,6 @@ echo "------------------------------------------------"
 echo "Symlinking configs into $XDG_CONFIG_HOME..."
 echo "------------------------------------------------"
 bash "$SCRIPT_DIR/make_symlink.sh"
-
-if [[ $TUIGREET_SETUP == "true" ]]; then
-    apt_install \
-        greetd \
-        tuigreet
-
-    if [[ -f /etc/greetd/config.toml && ! -f /etc/greetd/config.toml.original ]]; then
-        sudo mv /etc/greetd/config.toml /etc/greetd/config.toml.original
-        sudo tee /etc/greetd/config.toml >/dev/null <<'EOF'
-[terminal]
-vt = 7
-
-[default_session]
-user = "_greetd"
-command = "tuigreet --time --asterisks --remember --cmd 'uwsm start hyprland-uwsm.desktop'"
-EOF
-    fi
-    sudo systemctl enable greetd.service
-    sudo systemctl set-default graphical.target
-
-    echo "We have set up tuigreet greetd uwsm to start-hyprland"
-fi
 
 if [ -f /etc/netplan/00-installer-config.yaml ]; then
     sudo mv /etc/netplan/00-installer-config.yaml /etc/netplan/00-installer-config.yaml.disabled
