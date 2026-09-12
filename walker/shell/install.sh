@@ -36,7 +36,8 @@ list_packages() {
     cat <(list_apt) <(list_flatpak)
 }
 
-picks=$(list_packages | fzf "${fzf_args[@]}")
+# Doing it like this will allow the user to select apt first and don't have to wait for flatpak to also finish searching
+picks=$(fzf "${fzf_args[@]}" < <(list_packages))
 
 apt_pkgs=$(awk -F'\t' '$1 ~ /^apt:/ {print $2}' <<<"$picks")
 flatpak_ids=$(awk -F'\t' '$1 ~ /^flatpak:/ {print $5}' <<<"$picks")
