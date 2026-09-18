@@ -23,7 +23,7 @@ pkg_names=$(flatpak remote-ls --columns=name,description,application,origin |
     fzf "${fzf_args[@]}")
 
 if [[ -n $pkg_names ]]; then
-    echo "$pkg_names" | xargs flatpak install -y
+    echo "$pkg_names" | xargs -o flatpak install -y
 fi
 
 read -rn 1 -s -p "Press any key..."

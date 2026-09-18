@@ -23,7 +23,8 @@ pkg_names=$(flatpak list --columns=name,description,application,origin |
     fzf "${fzf_args[@]}")
 
 if [[ -n $pkg_names ]]; then
-    echo "$pkg_names" | xargs flatpak uninstall --delete-data -y
+    echo "$pkg_names" | xargs -o flatpak uninstall --delete-data -y
+    echo "Remove unused dependency"
     flatpak uninstall --unused -y
 fi
 

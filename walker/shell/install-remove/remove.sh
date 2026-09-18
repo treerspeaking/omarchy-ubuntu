@@ -51,7 +51,8 @@ if [[ -n $apt_pkgs ]]; then
 fi
 
 if [[ -n $flatpak_ids ]]; then
-    echo "$flatpak_ids" | xargs flatpak uninstall --delete-data -y
+    echo "$flatpak_ids" | xargs -o flatpak uninstall --delete-data -y
+    echo "Remove unused dependency"
     flatpak uninstall --unused -y
 fi
 

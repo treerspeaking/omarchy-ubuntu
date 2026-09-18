@@ -48,7 +48,7 @@ if [[ -n $apt_pkgs ]]; then
 fi
 
 if [[ -n $flatpak_ids ]]; then
-    echo "$flatpak_ids" | xargs flatpak install -y
+    echo "$flatpak_ids" | xargs -o flatpak install -y
 fi
 
 read -rn 1 -s -p "Press any key..."
