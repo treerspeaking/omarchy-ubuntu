@@ -2,19 +2,19 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/ask_sudo.sh"
+source "$SCRIPT_DIR/../ask_sudo.sh"
 
-# Every line has the same tab-separated fields:
-# 1 source, 2 name, 3 description (flatpak), 4 description (apt),
-# 5 app ID (flatpak), 6 origin (flatpak)
+#   | 1        | 2    | 3           | 4           | 5      |
+#   | apt:     | name | description |             |        |
+#   | flatpak: | name | description | application | origin |
 fzf_args=(
     --multi
     --delimiter '\t'
-    --with-nth "1..4" # show only fields 1-4
-    --nth "2,3"       # only fuzzy search fields 2 and 3 (empty on apt lines)
+    --with-nth "1..3" # show only fields 1-3
+    --nth "2"         # only fuzzy search fields name
     --tiebreak "chunk,begin,length"
     --tabstop 1 # render a tab as 1 space
-    --preview 'case {1} in apt:*) apt-cache show {2} ;; flatpak:*) flatpak remote-info {6} {5} ;; esac'
+    --preview 'case {1} in apt:*) apt-cache show {2} ;; flatpak:*) flatpak remote-info {5} {4} ;; esac'
     --preview-window 'down:65%:wrap:hidden'
     --header $'alt-p: toggle description'
     --preview-label 'alt-j/k: description-down/up, alt-d/u: description-half-page-down/up'
@@ -24,12 +24,12 @@ fzf_args=(
 
 list_apt() {
     apt-cache search . |
-        awk '{pkg = $1; sub(/^[^ ]+ - /, ""); printf "%s\t%-29s\t\t%s\t\t\n", "apt:", pkg, $0}'
+        awk '{pkg = $1; sub(/^[^ ]+ - /, ""); printf "%-8s\t%-30s\t%s\t\t\n", "apt:", pkg, $0}'
 }
 
 list_flatpak() {
     flatpak remote-ls --columns=name,description,application,origin |
-        awk -F'\t' '{printf "%-8s\t%-30s\t%s\t\t%s\t%s\n", "flatpak:", $1, $2, $3, $4}'
+        awk -F'\t' '{printf "%-8s\t%-30s\t%s\t%s\t%s\n", "flatpak:", $1, $2, $3, $4}'
 }
 
 list_packages() {
@@ -40,7 +40,7 @@ list_packages() {
 picks=$(fzf "${fzf_args[@]}" < <(list_packages))
 
 apt_pkgs=$(awk -F'\t' '$1 ~ /^apt:/ {print $2}' <<<"$picks")
-flatpak_ids=$(awk -F'\t' '$1 ~ /^flatpak:/ {print $5}' <<<"$picks")
+flatpak_ids=$(awk -F'\t' '$1 ~ /^flatpak:/ {print $4}' <<<"$picks")
 
 if [[ -n $apt_pkgs ]]; then
     ask_for_sudo

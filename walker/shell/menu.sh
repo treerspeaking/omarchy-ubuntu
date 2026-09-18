@@ -54,7 +54,7 @@ show_main() {
     System) show_system ;;
     Power) show_power ;;
     Install) show_install ;;
-    Remove) remove ;;
+    Remove) show_remove ;;
     Keybind) keybind ;;
     esac
 }
@@ -113,9 +113,22 @@ show_install() {
         "  Install apt" \
         "󰓜  Install Flatpak" \
         "$BACK") in
-    "Install all") tui "$SCRIPT_DIR/install.sh" ;;
-    "Install apt") tui "$SCRIPT_DIR/install-apt.sh" ;;
-    "Install Flatpak") tui "$SCRIPT_DIR/install-flatpak.sh" ;;
+    "Install all") tui "$SCRIPT_DIR/install-remove/install.sh" ;;
+    "Install apt") tui "$SCRIPT_DIR/install-remove/install-apt.sh" ;;
+    "Install Flatpak") tui "$SCRIPT_DIR/install-remove/install-flatpak.sh" ;;
+    Back) show_main ;;
+    esac
+}
+
+show_remove() {
+    case $(menu "Remove" \
+        "󰭌  Remove all" \
+        "  Remove apt" \
+        "󰓜  Remove Flatpak" \
+        "$BACK") in
+    "Remove all") tui "$SCRIPT_DIR/install-remove/remove.sh" ;;
+    "Remove apt") tui "$SCRIPT_DIR/install-remove/remove-apt.sh" ;;
+    "Remove Flatpak") tui "$SCRIPT_DIR/install-remove/remove-flatpak.sh" ;;
     Back) show_main ;;
     esac
 }

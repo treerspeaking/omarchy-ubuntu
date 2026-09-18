@@ -2,12 +2,16 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/ask_sudo.sh"
+source "$SCRIPT_DIR/../ask_sudo.sh"
 
+#   | 1    | 2    | 3           |
+#   | apt: | name | description |
 fzf_args=(
     --multi
-    --nth "2"      # Only perform the filter on the second field separated by ' '
-    --accept-nth 2 # Only get the 2 field separated by ' '
+    --delimiter '\t'
+    --nth "2"      # Only perform the filter on the name field
+    --accept-nth 2 # Only get the name field
+    --tabstop 1
     --tiebreak "chunk,begin,length"
     --preview 'apt-cache show {2}'
     --preview-window 'down:65%:wrap:hidden'
@@ -16,8 +20,9 @@ fzf_args=(
     --preview-label-pos='bottom'
     --bind 'alt-d:preview-half-page-down,alt-u:preview-half-page-up,alt-k:preview-up,alt-j:preview-down,alt-p:toggle-preview'
 )
+#
 
-pkg_names=$(apt-cache search . | sed 's/^/apt: /' | fzf "${fzf_args[@]}")
+pkg_names=$(apt-cache search . | awk '{pkg = $1; sub(/^[^ ]+ - /, ""); printf "apt:\t%-30s\t%s\n", pkg, $0}' | fzf "${fzf_args[@]}")
 
 if [[ -n $pkg_names ]]; then
     ask_for_sudo

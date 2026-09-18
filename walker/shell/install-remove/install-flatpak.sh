@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-source "$SCRIPT_DIR/ask_sudo.sh"
-
+#   | 1        | 2    | 3           | 4           | 5      |
+#   | flatpak: | name | description | application | origin |
 fzf_args=(
     --multi
     --delimiter '\t'
     --with-nth "1..3" # show only 1-3 separated field
-    --nth "2,3"       # Only perform fuzzy on 2 and 3 separated field
-    --accept-nth 4    # only get the
+    --nth "2"         # Only perform fuzzy on the name field
+    --accept-nth 4    # only get the flatpak id
     --tabstop 1       # render tab only as 1 space
     --tiebreak "chunk,begin,length"
     --preview 'flatpak remote-info {5} {4}'
@@ -25,7 +23,6 @@ pkg_names=$(flatpak remote-ls --columns=name,description,application,origin |
     fzf "${fzf_args[@]}")
 
 if [[ -n $pkg_names ]]; then
-    ask_for_sudo
     echo "$pkg_names" | xargs flatpak install -y
 fi
 
