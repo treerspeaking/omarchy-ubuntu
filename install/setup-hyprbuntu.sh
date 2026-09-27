@@ -321,7 +321,8 @@ apt_install \
     libpam-gnome-keyring \
     qt6-wayland \
     qtwayland5 \
-    rtkit
+    rtkit \
+    fzf
 
 UWSM_ENV_DIR="$XDG_CONFIG_HOME/uwsm"
 if [ ! -d "$UWSM_ENV_DIR" ]; then
