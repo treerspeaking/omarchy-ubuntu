@@ -29,14 +29,14 @@ Browser = "brave-browser"
 
 Some of the most important shortcut
 
-| HotKey                | Function          |
-| --------------------- | ----------------- |
-| `Super + Space`       | App menu          |
-| `Super + ALT + Space` | menu              |
-| `Super + K`           | Keybinds menu     |
-| `Super + Enter`       | Open Kitty        |
-| `Super + SHIFT + B`   | Open Browser      |
-| `Super + SHIFT + F`   | Open file manager |
+| HotKey                  | Function          |
+| ----------------------- | ----------------- |
+| `Super + Space`         | App menu          |
+| `Super + ALT + Space`   | menu              |
+| `Super + SHIFT + ALT K` | Keybinds menu     |
+| `Super + Enter`         | Open Kitty        |
+| `Super + SHIFT + B`     | Open Browser      |
+| `Super + SHIFT + F`     | Open file manager |
 
 ## Apps and menus
 

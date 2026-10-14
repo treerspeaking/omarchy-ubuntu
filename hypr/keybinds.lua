@@ -1,7 +1,7 @@
 local mainMod = "SUPER" -- Sets "Windows" key as main modifier
--- local menu = os.getenv("HOME") .. "/.local/share/omarchy-ubuntu/walker/menu.sh"
 local walker = os.getenv("HOME") .. "/.local/share/omarchy-ubuntu/walker/shell/"
 local waybar = os.getenv("HOME") .. "/.local/share/omarchy-ubuntu/waybar/shell/"
+local shell = os.getenv("HOME") .. "/.local/share/omarchy-ubuntu/shell/"
 local functions = require("functions")
 
 -- Example binds, see https://wiki.hypr.land/Configuring/Basics/Binds/ for more
@@ -9,7 +9,11 @@ hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(Terminal), { description = "Open
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd(Browser), { description = "Open browser" })
 hl.bind(mainMod .. " + W", hl.dsp.window.close(), { description = "Close active window" })
 
-hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd(FileManager), { description = "Open file manager" })
+hl.bind(
+	mainMod .. " + SHIFT + F",
+	hl.dsp.exec_cmd(FileManager .. ' --new-window "$(' .. shell .. 'terminal-cwd.sh)"'),
+	{ description = "Open file manager in terminal's cwd" }
+)
 hl.bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }), { description = "Toggle floating window" })
 -- "maximized" fills the monitor but respects reserved space (top bar stays visible)
 hl.bind(
@@ -34,28 +38,45 @@ hl.bind(mainMod .. " + SHIFT + SPACE", hl.dsp.exec_cmd(waybar .. "toggle.sh"))
 -- menu
 hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(walker .. "appmenu.sh"), { description = "Open app launcher" })
 hl.bind(mainMod .. " + ALT + SPACE", hl.dsp.exec_cmd(walker .. "/menu.sh"), { description = "Open menu" })
-hl.bind(mainMod .. " + K", hl.dsp.exec_cmd(walker .. "/show-keybinds.sh"), { description = "Show keybinds" })
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { description = "Toggle pseudotiling" })
-hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"), { description = "Toggle split direction" }) -- dwindle onl
--- Move focus with mainMod + arrow keys
-hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }), { description = "Move focus left" })
-hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }), { description = "Move focus right" })
-hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }), { description = "Move focus up" })
-hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }), { description = "Move focus down" })
-
--- Swap the active window itself with mainMod + SHIFT + arrow keys
 hl.bind(
-	mainMod .. " + SHIFT + left",
-	hl.dsp.window.swap({ direction = "left" }),
-	{ description = "Swap window to left" }
+	mainMod .. " + ALT +SHIFT + K",
+	hl.dsp.exec_cmd(walker .. "/show-keybinds.sh"),
+	{ description = "Show keybinds" }
 )
+hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { description = "Toggle pseudotiling" })
+hl.bind(mainMod .. " + ALT + J", hl.dsp.layout("togglesplit"), { description = "Toggle split direction" }) -- dwindle onl
+-- Move focus with mainMod + arrow keys
+-- hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }), { description = "Move focus left" })
+-- hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }), { description = "Move focus right" })
+-- hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }), { description = "Move focus up" })
+-- hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }), { description = "Move focus down" })
+
+hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }), { description = "Move focus left" })
+hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }), { description = "Move focus right" })
+hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up" }), { description = "Move focus up" })
+hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "down" }), { description = "Move focus down" })
+-- Swap the active window itself with mainMod + SHIFT + arrow keys
+-- hl.bind(
+-- 	mainMod .. " + SHIFT + left",
+-- 	hl.dsp.window.swap({ direction = "left" }),
+-- 	{ description = "Swap window to left" }
+-- )
+-- hl.bind(
+-- 	mainMod .. " + SHIFT + right",
+-- 	hl.dsp.window.swap({ direction = "right" }),
+-- 	{ description = "Swap window to right" }
+-- )
+-- hl.bind(mainMod .. " + SHIFT + up", hl.dsp.window.swap({ direction = "up" }), { description = "Swap window up" })
+-- hl.bind(mainMod .. " + SHIFT + down", hl.dsp.window.swap({ direction = "down" }), { description = "Swap window down" })
+
+hl.bind(mainMod .. " + SHIFT + h", hl.dsp.window.swap({ direction = "left" }), { description = "Swap window to left" })
 hl.bind(
-	mainMod .. " + SHIFT + right",
+	mainMod .. " + SHIFT + l",
 	hl.dsp.window.swap({ direction = "right" }),
 	{ description = "Swap window to right" }
 )
-hl.bind(mainMod .. " + SHIFT + up", hl.dsp.window.swap({ direction = "up" }), { description = "Swap window up" })
-hl.bind(mainMod .. " + SHIFT + down", hl.dsp.window.swap({ direction = "down" }), { description = "Swap window down" })
+hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.swap({ direction = "up" }), { description = "Swap window up" })
+hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.swap({ direction = "down" }), { description = "Swap window down" })
 
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]

@@ -29,7 +29,6 @@ list_apt() {
         awk -F'\t' '$1 ~ /^.i/ {printf "%-8s\t%-30s\t%s\t\t\n", "apt:", $2, $3}'
 }
 
-# Only list apps, the runtimes they pulled in are cleaned up with --unused below
 list_flatpak() {
     flatpak list --columns=name,description,application,origin |
         awk -F'\t' '{printf "%-8s\t%-30s\t%s\t%s\t%s\n", "flatpak:", $1, $2, $3, $4}'
