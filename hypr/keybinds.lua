@@ -178,11 +178,10 @@ hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tru
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true, description = "Previous media track" })
 
 -- Screenshots
-local hyprshot = os.getenv("HOME") .. "/.local/bin/hyprshot"
-hl.bind("PRINT", hl.dsp.exec_cmd(hyprshot .. " -m region"), { description = "Region screenshot" })
-hl.bind("ALT + PRINT", hl.dsp.exec_cmd(hyprshot .. " -m window"), { description = "Window screenshot" })
-hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd(hyprshot .. " -m output"), { description = "Monitor screenshot" })
-hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd(hyprshot .. " -m region"), { description = "Region screenshot" })
+hl.bind("PRINT", hl.dsp.exec_cmd("hyprshot -m region"), { description = "Region screenshot" })
+hl.bind("ALT + PRINT", hl.dsp.exec_cmd("hyprshot -m window"), { description = "Window screenshot" })
+hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd("hyprshot -m output"), { description = "Monitor screenshot" })
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region"), { description = "Region screenshot" })
 -- notification mako
 hl.bind("SUPER + COMMA", hl.dsp.exec_cmd("makoctl dismiss"), { description = "Dismiss last notification" })
 hl.bind("SUPER + SHIFT + COMMA", hl.dsp.exec_cmd("makoctl dismiss -a"), { description = "Dismiss all notifications" })

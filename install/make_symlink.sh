@@ -141,3 +141,15 @@ ln -sfn /usr/lib/systemd/user/xdg-desktop-portal-gtk.service ~/.config/systemd/u
 if [[ ! -e "$OMARCHY_UBUNTU_DIR/current-omarchy-ubuntu/theme/background-img" ]]; then
     ln -sfn "$OMARCHY_UBUNTU_DIR/themes/ristretto/backgrounds/3-industrial-moon.jpg" "$OMARCHY_UBUNTU_DIR/current-omarchy-ubuntu/theme/background-img"
 fi
+
+if [[ -e "$HOME/.config/systemd/user/graphical-session.target.wants/swayosd.service" ]] && [[ ! -L "$HOME/.config/systemd/user/graphical-session.target.wants/swayosd.service" ]]; then
+    mv "$HOME/.config/systemd/user/graphical-session.target.wants/swayosd.service" "$HOME/.config/systemd/user/graphical-session.target.wants/swayosd.service.bak.$(date +%Y%m%d_%H%M%S)"
+fi
+
+ln -sfn "$OMARCHY_UBUNTU_DIR/systemd/swayosd.service" ~/.config/systemd/user/graphical-session.target.wants/swayosd.service
+
+if [[ -e "$HOME/.config/systemd/user/swayosd.service" ]] && [[ ! -L "$HOME/.config/systemd/user/swayosd.service" ]]; then
+    mv "$HOME/.config/systemd/user/swayosd.service" "$HOME/.config/systemd/user/swayosd.service.bak.$(date +%Y%m%d_%H%M%S)"
+fi
+
+ln -sfn "$OMARCHY_UBUNTU_DIR/systemd/swayosd.service" ~/.config/systemd/user/swayosd.service

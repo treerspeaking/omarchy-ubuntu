@@ -21,7 +21,7 @@ set -e
 # WAYBAR_SETUP=true|false - whether to install (minimal config) waybar as the status bar
 # KITTY_CONFIG_SETUP=true|false - whether to add include ~/.local/share/omarchy-ubuntu/current-omarchy-ubuntu/theme/kitty-theme.conf
 
-BUILD_DIR="$HOME/hyprbuntu"
+BUILD_DIR="$HOME/omarchy_ubuntu"
 DISABLE_CONFIRM=false
 HYPRIDLE_SETUP=true
 HYPRLOCK_SETUP=true
@@ -129,7 +129,7 @@ install_hyprwm_package() {
     sudo cmake --install build
 }
 
-# whoami
+# ask for sudo
 
 if [ "$EUID" -eq 0 ]; then
     echo "Error: Please run this script as your normal user, not directly as root or with sudo."
@@ -160,43 +160,6 @@ has_nvidia() {
 if has_nvidia; then
     ask_yes_no "Would you like to install nvidia proprietory drivers" "NVIDIA_SETUP" "true"
 fi
-
-if [ -z "${THEME_PREF}" ]; then
-    echo "Would you like to set a default base theme? (Adwaita)"
-    echo "1) Dark Theme (Recommended)"
-    echo "2) Light Theme"
-    echo "3) None / Skip"
-    read -p "Select an option [1-3, default 1]: " -r
-    case $REPLY in
-    2) THEME_PREF="light" ;;
-    3) THEME_PREF="none" ;;
-    *) THEME_PREF="dark" ;; # Default to dark
-    esac
-fi
-
-if [ -z "${NOTIFICATION_DAEMON_PREF}" ]; then
-    echo "Would you like to setup a notification daemon?"
-    echo "1) dunst"
-    echo "2) mako"
-    echo "3) swaync (Recommended)"
-    echo "4) None / Skip"
-    read -p "Select an option [1-3, default 1]: " -r
-    case $REPLY in
-    1) NOTIFICATION_DAEMON_PREF="dunst" ;;
-    2) NOTIFICATION_DAEMON_PREF="mako" ;;
-    4) NOTIFICATION_DAEMON_PREF="none" ;;
-    *) NOTIFICATION_DAEMON_PREF="swaync" ;; # Default to swaync
-    esac
-fi
-
-ask_yes_no "Would you like to install hyprpaper" "HYPRPAPER_SETUP" "true"
-ask_yes_no "Would you like to install hyprlock" "HYPRLOCK_SETUP" "true"
-ask_yes_no "Would you like to install hypridle" "HYPRIDLE_SETUP" "true"
-ask_yes_no "Would you like to install hyprshot" "HYPRSHOT_SETUP" "true"
-ask_yes_no "Would you like to install swayosd (media keys/brightness)" "SWAYOSD_SETUP" "true"
-ask_yes_no "Would you like to install thunar (GUI file explorer)" "THUNAR_SETUP" "true"
-ask_yes_no "Would you like to install waybar (status bar)" "WAYBAR_SETUP" "true"
-ask_yes_no "Would you like to build walker + elephant (app launcher, replaces hyprlauncher as the SUPER+SPACE default)" "WALKER_SETUP" "false"
 
 has_tuigreet() {
     if command -v tuigreet &>/dev/null; then
@@ -489,7 +452,7 @@ has_wifi() {
     done
     return 1 # false
 }
-if has_wifi; then
+if has_wifi || has_ethernet; then
     echo "Wi-Fi hardware detected. Installing wlctl..."
     cargo install wlctl
 fi
@@ -683,13 +646,6 @@ if [[ "$HYPRIDLE_SETUP" == "true" ]] && [[ "$HYPRLOCK_SETUP" == "true" ]]; then
     systemctl --user enable hypridle.service
 fi
 
-if [ "mako" = "$NOTIFICATION_DAEMON_PREF" ]; then
-    apt_install mako-notifier
-    MAKO_CONFIG_DIR="$XDG_CONFIG_HOME/mako"
-    mkdir -p "$MAKO_CONFIG_DIR"
-    systemctl --user enable mako.service
-fi
-
 if [[ $HYPRSHOT_SETUP == "true" ]]; then
     apt_install \
         grim \
@@ -701,6 +657,13 @@ if [[ $HYPRSHOT_SETUP == "true" ]]; then
         curl -o "$HOME/.local/bin/hyprshot" https://raw.githubusercontent.com/Gustash/Hyprshot/refs/heads/main/hyprshot
         chmod 755 "$HOME/.local/bin/hyprshot"
     fi
+fi
+
+if [ "mako" = "$NOTIFICATION_DAEMON_PREF" ]; then
+    apt_install mako-notifier
+    MAKO_CONFIG_DIR="$XDG_CONFIG_HOME/mako"
+    mkdir -p "$MAKO_CONFIG_DIR"
+    systemctl --user enable mako.service
 fi
 
 if [[ $SWAYOSD_SETUP == "true" ]]; then
@@ -752,10 +715,7 @@ apt_install \
     xwayland
 
 if [[ $WAYBAR_SETUP == "true" ]]; then
-    apt_install \
-        waybar \
-        wlogout
-
+    apt_install waybar
     WAYBAR_CONFIG_DIR="$XDG_CONFIG_HOME/waybar"
     mkdir -p "$WAYBAR_CONFIG_DIR"
 fi
