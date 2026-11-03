@@ -139,5 +139,7 @@ fi
 ln -sfn /usr/lib/systemd/user/xdg-desktop-portal-gtk.service ~/.config/systemd/user/graphical-session.target.wants/xdg-desktop-portal-gtk.service
 
 if [[ ! -e "$OMARCHY_UBUNTU_DIR/current-omarchy-ubuntu/theme/background-img" ]]; then
-    ln -sfn "$OMARCHY_UBUNTU_DIR/themes/ristretto/backgrounds/3-industrial-moon.jpg" "$OMARCHY_UBUNTU_DIR/current-omarchy-ubuntu/theme/background-img"
+    read -r current_default < "$OMARCHY_UBUNTU_DIR/current-omarchy-ubuntu/theme/current-background.name"
+    current_default=$HOME$current_default
+    ln -sfn "$current_default" "$OMARCHY_UBUNTU_DIR/current-omarchy-ubuntu/theme/background-img"
 fi
