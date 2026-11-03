@@ -2,6 +2,11 @@
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 OMARCHY_UBUNTU_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../ && pwd)
+TEMP_DIR="$OMARCHY_UBUNTU_DIR/current-omarchy-ubuntu/tmp"
+
+if [[ ! -d "$TEMP_DIR" ]]; then
+    mkdir -p "$TEMP_DIR"
+fi
 
 background_img_dir="${1#"$HOME"}"
 
