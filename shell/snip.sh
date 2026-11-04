@@ -6,4 +6,4 @@ makoctl list |
         makoctl dismiss -n "$id"
     done
 
-exec "$HOME/.local/bin/hyprshot" "$@"
+exec "hyprshot" "$@"
