@@ -96,6 +96,8 @@ hl.config({
 		initial_workspace_tracking = 1,
 		on_focus_under_fullscreen = 1,
 		allow_session_lock_restore = true,
+		mouse_move_enables_dpms = true,
+		key_press_enables_dpms = true,
 	},
 })
 
@@ -116,7 +118,9 @@ hl.config({
 		sensitivity = 0, -- -1.0 - 1.0, 0 means no modification.
 
 		touchpad = {
+			tap_to_click = false,
 			natural_scroll = false,
+			clickfinger_behavior = true,
 		},
 	},
 })
