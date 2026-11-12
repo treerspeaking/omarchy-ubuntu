@@ -4,10 +4,9 @@
 # (the shell itself at a prompt, or e.g. nvim if it's open). Falls back to $HOME.
 
 pid=$(hyprctl activewindow -j | jq -r '.pid')
-final_child_pid=$(pgrep -P "$pid" | tail -n 1)
-dir=$(readlink "/proc/$final_child_pid/cwd" 2>/dev/null)
+# kitty also spawns helper kittens with no tty (tpgid -1); skip those.
 # tpgid = the terminal's foreground process: the shell itself at a prompt, or e.g. nvim if it's open
-fg_pid=$(ps -o tpgid= -p "$final_child_pid" 2>/dev/null | tr -d ' ')
+fg_pid=$(ps -o tpgid= --ppid "$pid" 2>/dev/null | awk '$1 > 0 {p=$1} END {print p}')
 dir=$(readlink "/proc/$fg_pid/cwd" 2>/dev/null)
 
 if [[ -d "$dir" ]]; then
